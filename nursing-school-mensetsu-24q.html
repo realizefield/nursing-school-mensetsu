@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>国立医療センター看護学校 面接練習プログラム - 24問AI評価版</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 20px;
+    background: #f5f5f5;
+    font-family: "Hiragino Sans", "Meiryo", sans-serif;
+    line-height: 1.6;
+    color: #333;
+  }
+  .container { max-width: 900px; margin: 0 auto; }
+  h1 { color: #e8374b; margin-bottom: 5px; text-align: center; }
+  .subtitle { text-align: center; color: #666; margin-bottom: 30px; font-size: 14px; }
+  
+  .question-list {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .q-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 12px;
+    margin: 8px 0;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 14px;
+  }
+  .q-btn:hover { background: #f0f0f0; border-color: #e8374b; }
+  .q-btn.selected { background: #ffe8eb; border-color: #e8374b; font-weight: bold; }
+  
+  .practice-area {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .question-display {
+    background: #f9f9f9;
+    padding: 15px;
+    border-left: 5px solid #e8374b;
+    margin-bottom: 20px;
+    border-radius: 3px;
+  }
+  
+  .control-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: 0.2s;
+  }
+  .btn-voice {
+    background: #2b8a3e;
+    color: white;
+  }
+  .btn-voice:hover { background: #1e6b2e; }
+  .btn-voice.recording {
+    background: #d92d20;
+    animation: pulse 1s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+  .btn-clear {
+    background: #ccc;
+    color: #333;
+  }
+  .btn-clear:hover { background: #999; }
+  .btn-eval {
+    background: #e8374b;
+    color: white;
+  }
+  .btn-eval:hover { background: #c91a31; }
+  .btn-eval.loading {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .transcript-box {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 12px;
+    border-radius: 3px;
+    margin-bottom: 15px;
+    min-height: 60px;
+  }
+  .transcript-box.empty {
+    color: #999;
+    font-style: italic;
+  }
+  
+  .intent-section {
+    background: #fff3bf;
+    padding: 12px;
+    border-radius: 3px;
+    margin: 15px 0;
+  }
+  .intent-label { font-size: 12px; color: #999; text-transform: uppercase; }
+  .intent-text { color: #d9480f; font-weight: bold; }
+  
+  .keywords { margin-top: 10px; }
+  .keyword { 
+    display: inline-block;
+    background: #ffe8eb;
+    color: #e8374b;
+    padding: 4px 10px;
+    margin: 4px 4px 4px 0;
+    border-radius: 12px;
+    font-size: 12px;
+  }
+  
+  .evaluation-result {
+    background: #f0f8ff;
+    border: 1px solid #e8374b;
+    padding: 15px;
+    border-radius: 3px;
+    margin-top: 15px;
+  }
+  .score-display {
+    font-size: 32px;
+    font-weight: bold;
+    color: #e8374b;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  .eval-item {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #ddd;
+  }
+  .eval-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  .eval-label {
+    font-weight: bold;
+    color: #e8374b;
+    margin-bottom: 4px;
+  }
+  .eval-content {
+    color: #333;
+    font-size: 14px;
+  }
+  .loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #e8374b;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  .msg { margin-top: 8px; padding: 8px; border-radius: 3px; }
+  .msg.info { background: #e7f1ff; color: #1c7ed6; }
+  .msg.success { background: #c3fac3; color: #2b8a3e; }
+  .msg.error { background: #fcc; color: #d92d20; }
+  .msg.warning { background: #fff3bf; color: #d9480f; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🏥 国立医療センター看護学校</h1>
+  <p class="subtitle">音声入力→文字化→AI評価版（24問）</p>
+  
+  <div class="question-list">
+    <h3>質問を選択:</h3>
+    <button class="q-btn" onclick="selectQuestion(0)">Q① 自己紹介</button>
+    <button class="q-btn" onclick="selectQuestion(1)">Q② 本校を志望した理由</button>
+    <button class="q-btn" onclick="selectQuestion(2)">Q③ なぜ看護師を目指すのか</button>
+    <button class="q-btn" onclick="selectQuestion(3)">Q④ ドキュメンタリーについて</button>
+    <button class="q-btn" onclick="selectQuestion(4)">Q⑤ 地震経験と学び</button>
+    <button class="q-btn" onclick="selectQuestion(5)">Q⑥ 感染症や災害の現場</button>
+    <button class="q-btn" onclick="selectQuestion(6)">Q⑦ 多くの看護学校の中で、なぜ本校</button>
+    <button class="q-btn" onclick="selectQuestion(7)">Q⑧ オープンキャンパスの印象</button>
+    <button class="q-btn" onclick="selectQuestion(8)">Q⑨ シミュレーション施設について</button>
+    <button class="q-btn" onclick="selectQuestion(9)">Q⑩ 母体病院について</button>
+    <button class="q-btn" onclick="selectQuestion(10)">Q⑪ 本校は第一志望か</button>
+    <button class="q-btn" onclick="selectQuestion(11)">Q⑫ 教育理念について</button>
+    <button class="q-btn" onclick="selectQuestion(12)">Q⑬ 救急看護について</button>
+    <button class="q-btn" onclick="selectQuestion(13)">Q⑭ 他部門に配置されたら</button>
+    <button class="q-btn" onclick="selectQuestion(14)">Q⑮ 10年後の看護師像</button>
+    <button class="q-btn" onclick="selectQuestion(15)">Q⑯ 配属先は全国の国立病院でもよいか</button>
+    <button class="q-btn" onclick="selectQuestion(16)">Q⑰ 学校で頑張ったこと</button>
+    <button class="q-btn" onclick="selectQuestion(17)">Q⑱ 経験を看護として活用</button>
+    <button class="q-btn" onclick="selectQuestion(18)">Q⑲ 最近気になったニュース</button>
+    <button class="q-btn" onclick="selectQuestion(19)">Q⑳ 部活動での立ち位置</button>
+    <button class="q-btn" onclick="selectQuestion(20)">Q㉑ 意見対立時の対応</button>
+    <button class="q-btn" onclick="selectQuestion(21)">Q㉒ 大学ではなく本校を選んだ理由</button>
+    <button class="q-btn" onclick="selectQuestion(22)">Q㉓ 悩んだ時の対応方法</button>
+    <button class="q-btn" onclick="selectQuestion(23)">Q㉔ 看護師の資質</button>
+  </div>
+  
+  <div class="practice-area">
+    <div id="questionDisplay" class="question-display" style="display:none;">
+      <div><strong id="questionText"></strong></div>
+    </div>
+    
+    <div class="control-buttons">
+      <button class="btn-voice" id="voiceBtn" onclick="toggleVoiceInput()">🎤 音声入力開始</button>
+      <button class="btn-clear" onclick="clearTranscript()">クリア</button>
+      <button class="btn-eval" id="evalBtn" onclick="getAutoEvaluation()">⚡ AI評価</button>
+    </div>
+    
+    <div>
+      <label><strong>認識されたテキスト:</strong></label>
+      <div id="transcriptBox" class="transcript-box empty">クリックして音声入力を開始...</div>
+    </div>
+    
+    <div id="intentSection" style="display:none;">
+      <div class="intent-section">
+        <div class="intent-label">面接官の意図</div>
+        <div class="intent-text" id="intentText"></div>
+        <div class="keywords" id="keywordArea"></div>
+      </div>
+    </div>
+    
+    <div id="evalResultSection" style="display:none;">
+      <div class="evaluation-result">
+        <div class="score-display" id="scoreDisplay"></div>
+        <div id="evalDetails"></div>
+      </div>
+    </div>
+    
+    <div id="loadingSection" style="display:none;">
+      <div class="msg info" style="text-align: center;">
+        <span class="loading-spinner"></span> AI評価を生成中（タイムアウト：30秒）...
+      </div>
+    </div>
+
+    <div id="statusMessage" style="display:none;"></div>
+  </div>
+</div>
+
+<script>
+const questions = [
+  { q: "自己紹介をしてください。", intent: "話し方、態度、第一印象を見ています。氏名、学校、高校時代に力を入れたことを30秒以内に話す。", keywords: ["簡潔さ", "はきはき", "第一印象"], model: "〇〇高校の〇〇です。高校時代は〇〇に力を入れました。本日はよろしくお願いいたします。" },
+  { q: "本校を志望した理由は、１分程度で教えてください。", intent: "志望理由の根拠と学校研究の準備度を確認します。", keywords: ["救急看護", "災害看護", "少人数教育", "母体病院"], model: "救急看護・災害看護に興味があり、550床の大規模病院である熊本医療センターでの実習が可能な本校での学習を望んでいます。また、少人数教育で丁寧な指導が受けられることに魅力を感じています。" },
+  { q: "なぜ看護師を目指すのですか。看護師を目指そうと思ったきっかけを教えてください。", intent: "職業選択の深さ、看護への向き合い方を見ています。", keywords: ["具体的な体験", "患者の役に立つ", "責任感", "やりがい"], model: "〇〇という具体的な経験から、医療者としての使命の大切さを学びました。患者さんに寄り添い、その力になれる看護師を目指しています。" },
+  { q: "ドキュメンタリーについて、もう少し詳しく教えてください。", intent: "動機や本校への動機付けが本当か、体験から自分の言葉で語れているか確認します。", keywords: ["医療従事者の使命", "患者と家族の信頼", "緊急時の対応"], model: "【番組名】を見て、医療者の責任感と患者・家族との信頼関係の大切さを実感しました。これが本校を志望するきっかけになりました。" },
+  { q: "熊本で度重なる地震を経験されたとのことですが、それぞれのような経験でしたか。", intent: "災害への思いの根底と、経験の受け止め方を見ています。志望理由書の記述の深掘りです。", keywords: ["被災経験の深さ", "医療者への感謝", "緊急時の対応の学び"], model: "2016年の地震では【状況】。令和6年の地震では【状況】。両方の経験から、医療者の迅速な対応がいかに大切かを学びました。" },
+  { q: "感染症や災害の現場は危険もあります。怖くはありませんか。", intent: "覚悟とストレス対処力を見ています。現実的な理解があるか確認。", keywords: ["知識・技術の習得", "チームワーク", "自己管理"], model: "怖さがないわけではありませんが、だからこそ正確な知識と技術を身につけることが重要だと考えます。チームで支え合いながら、冷静に対応できる看護師を目指しています。" },
+  { q: "多くの看護学校の中で、なぜ本校なのですか。", intent: "本校を『選ぶ理由』と『他校との差別化』を見ています。研究の深さを確認。", keywords: ["550床の大規模病院", "DMAT", "シミュレーション教育", "小規模校"], model: "本校の母体病院である熊本医療センターは550床の大規模病院で、DMATなどの先進的な医療体制があります。また、少人数教育で丁寧な指導が受けられることが本校を選んだ理由です。" },
+  { q: "オープンキャンパスで、特に印象に残ったことは何ですか。", intent: "実際に足を運んだか、本校への適応速度、教育コストを確認します。", keywords: ["シミュレーション演習", "先輩との交流", "附属病院の規模"], model: "シミュレーション施設を見学し、実習と同じ環境で学習できることに感動しました。また、先輩から【具体的な話】を聞き、本校への入学がより確実になりました。" },
+  { q: "新設のシミュレーション棟について、知っていることを答えてください。", intent: "学校研究の深さを見ています。", keywords: ["在宅看護演習室", "ICU6床", "24時間365日対応"], model: "2025年12月に完成予定の新設シミュレーション棟には、在宅看護演習室やICU6床など、実習に近い環境が整備されます。24時間対応することで、様々な状況での学習が可能になります。" },
+  { q: "本校の母体病院、熊本医療センターについて知っていることを教えてください。", intent: "卒業後の就職地への関心と、志望動機の根拠を確認します。", keywords: ["550床の大規模病院", "DMAT（災害医療チーム）", "救命救急センター"], model: "熊本医療センターは550床の大規模病院で、救命救急センターやDMAT（災害医療チーム）があります。3年間でこの病院で学べることは、看護師としての基礎を築く上で非常に重要だと考えています。" },
+  { q: "他の学校も受験しますか。本校は第一志望ですか。", intent: "入学意思の確認と、本気度を測ります。", keywords: ["第一志望", "本気度", "継続学習への意思"], model: "本校が第一志望です。志望理由書にも記載した通り、本校での学習を通じて、一流の看護師を目指したいと考えています。" },
+  { q: "本校の教育理念「自主・責任秩序・融和」で、共感するものはどれですか。", intent: "理念への理解と、自分のキャリア観が一致しているか確認します。", keywords: ["自主：自分課題を見つける", "責任秩序：最後まで役割を果たす", "融和：チーム立場に立って行動"], model: "特に「融和」に共感します。医療現場ではチームで患者さんに向き合う必要があり、周囲との協調が最も大切だと考えています。3年間でこの理念を実践できる看護師になりたいです。" },
+  { q: "救急看護師に必要な力は何だと思いますか。", intent: "職業理解の深さと志望根拠を確認します。", keywords: ["迅速", "正確さ", "判断力", "冷静さ", "連携"], model: "迅速で正確な判断力です。患者さんの状態を素早く把握し、優先順位をつけて対応する必要があります。また、医療チーム全体との連携も欠かせません。" },
+  { q: "もし救急以外の部門に配置されたら、どうしますか。", intent: "柔軟性と看護への姿勢を見ています。", keywords: ["柔軟性", "看護への姿勢", "生きる力"], model: "どの部門でも患者さんの状態を把握し、安心して過ごせる環境を作ることが看護の本質だと考えています。その部門の特性を学んで、できる範囲で地域医療に貢献したいです。" },
+  { q: "10年後、どのような看護師になっていたいですか。", intent: "将来像の一貫性と成長意欲を見ています。", keywords: ["学び続ける", "患者に寄り添う", "チームの中での役割"], model: "実践的な知識と技術を備え、患者さんに心から寄り添える看護師を目指しています。また、後輩を育てるくらいの成長を遂げたいです。常に学び続ける姿勢を大切にしたいと考えています。" },
+  { q: "配属先は全国の国立病院でもよいですか。", intent: "柔軟性と地元への貢献意思、キャリアの多様性を見ています。", keywords: ["柔軟性", "全国対応", "学習機会"], model: "はい、どの地域でも患者さんに貢献できる看護師を目指しているため、全国の国立病院での勤務に対応する準備があります。様々な環境での学習を通じて、成長したいと考えています。" },
+  { q: "学校でもっとも頑張ったことと、その経験で得られたものは何ですか。", intent: "学習成果と成長実績、具体的な経験を見ています。", keywords: ["具体的な活動", "成果", "学習", "成長"], model: "【活動名】に力を入れ、【成果】を得ることができました。この経験から【学んだこと】を学び、看護師としての基礎となる力が養われました。" },
+  { q: "その経験を看護としてどのように活用しますか。", intent: "学習の実践応用と職業との繋がりを見ています。", keywords: ["実践", "患者対応", "チームワーク", "応用力"], model: "その経験を通じて学んだ【スキル】を、看護現場での【場面】で活かしたいと考えています。例えば、【具体例】という状況で、その力が役に立つと考えています。" },
+  { q: "最近気になったニュースをあげてください。", intent: "社会への関心と看護への繋がり、時事問題への認識を見ています。", keywords: ["医療ニュース", "社会関心", "看護課題"], model: "【ニュースの内容】について気になっており、医療現場での課題として【分析】だと考えています。このような課題に対して、看護師として【貢献方法】ができると思っています。" },
+  { q: "あなたは部活動ではどんな立ち位置でしたか。", intent: "チーム内での役割認識と協調性を見ています。", keywords: ["役割", "貢献", "チームワーク", "リーダーシップ"], model: "【部活動名】では【役割】を担当し、チーム全体の【貢献】を心がけていました。【具体的な事例】を通じて、チームの一員として責任を果たすことの大切さを学びました。" },
+  { q: "意見が対立したときはどうしますか。", intent: "コミュニケーション能力と柔軟性、判断力を見ています。", keywords: ["傾聴", "対話", "チーム判断", "調和"], model: "相手の意見をしっかり聞き、互いの視点を理解した上で、チーム全体のために最善の判断を尊重します。【具体例】という経験から、対立を解決するための対話の重要性を学びました。" },
+  { q: "どうして大学ではなく本校を選んだのか。", intent: "教育機関選択の根拠と看護師像の一貫性を見ています。", keywords: ["実践教育", "小規模", "即戦力", "理想の看護師"], model: "実践的な教育と少人数教育により、即戦力の看護師になれると考え、本校を選びました。理論と実践をバランスよく学べる環境が、私の看護師像の実現に最適だと判断しました。" },
+  { q: "悩んだ時あなたはどうしますか。", intent: "ストレス対処能力とサポート受け入れ、冷静さを見ています。", keywords: ["相談", "支援受け入れ", "冷静さ", "問題解決"], model: "悩んだ時は、先生や先輩に相談し、複数の視点から考えることで、冷静に判断するよう心がけています。【具体例】という経験から、一人で抱え込まず、周囲の支援を活用することの大切さを学びました。" },
+  { q: "看護師の資質は何でしょうか。", intent: "看護職業観と職業理解の深さを見ています。", keywords: ["患者中心", "責任感", "継続学習", "共感", "気配り"], model: "患者さんに寄り添う姿勢、責任感、常に学び続ける姿勢、そして困難な状況でも前向きに対応する力だと考えています。これらの資質を本校での3年間で培い、一流の看護師を目指したいです。" }
+];
+
+let selectedQ = null;
+let transcript = '';
+let recognition = null;
+const WORKERS_URL = 'https://gamba-api.kogentext.workers.dev';
+const TIMEOUT_MS = 30000;
+
+function initVoice() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    showStatus('お使いのブラウザは音声認識に対応していません。Chrome、Edge、Safariをお試しください。', 'error');
+    return false;
+  }
+  recognition = new SpeechRecognition();
+  recognition.lang = 'ja-JP';
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  
+  recognition.onstart = () => {
+    document.getElementById('voiceBtn').classList.add('recording');
+    document.getElementById('voiceBtn').textContent = '🔴 記録中...';
+  };
+  
+  recognition.onresult = (event) => {
+    transcript = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript;
+    }
+    document.getElementById('transcriptBox').textContent = transcript;
+    document.getElementById('transcriptBox').classList.remove('empty');
+  };
+  
+  recognition.onerror = (event) => {
+    console.error('音声認識エラー:', event.error);
+    showStatus('音声認識エラー: ' + event.error, 'error');
+  };
+  
+  recognition.onend = () => {
+    document.getElementById('voiceBtn').classList.remove('recording');
+    document.getElementById('voiceBtn').textContent = '🎤 音声入力開始';
+  };
+  
+  return true;
+}
+
+function selectQuestion(idx) {
+  selectedQ = idx;
+  document.querySelectorAll('.q-btn').forEach((btn, i) => {
+    btn.classList.toggle('selected', i === idx);
+  });
+  const q = questions[idx];
+  document.getElementById('questionDisplay').style.display = 'block';
+  document.getElementById('questionText').textContent = q.q;
+  document.getElementById('intentText').textContent = q.intent;
+  document.getElementById('keywordArea').innerHTML = q.keywords.map(k => `<span class="keyword">${k}</span>`).join('');
+  document.getElementById('intentSection').style.display = 'block';
+  document.getElementById('evalResultSection').style.display = 'none';
+  hideStatus();
+}
+
+function toggleVoiceInput() {
+  if (!recognition) {
+    if (!initVoice()) return;
+  }
+  if (recognition.onstart !== null) {
+    recognition.start();
+  } else {
+    recognition.stop();
+  }
+}
+
+function clearTranscript() {
+  transcript = '';
+  document.getElementById('transcriptBox').textContent = '音声を記録してください';
+  document.getElementById('transcriptBox').classList.add('empty');
+  document.getElementById('evalResultSection').style.display = 'none';
+  hideStatus();
+  if (recognition) recognition.stop();
+}
+
+function showStatus(message, type) {
+  const statusDiv = document.getElementById('statusMessage');
+  statusDiv.className = `msg ${type}`;
+  statusDiv.textContent = message;
+  statusDiv.style.display = 'block';
+}
+
+function hideStatus() {
+  document.getElementById('statusMessage').style.display = 'none';
+}
+
+async function getAutoEvaluation() {
+  if (!selectedQ !== null || !transcript.trim()) {
+    showStatus('質問を選択して、音声入力を記録してください。', 'warning');
+    return;
+  }
+  
+  const q = questions[selectedQ];
+  const evalBtn = document.getElementById('evalBtn');
+  const loadingSection = document.getElementById('loadingSection');
+  
+  evalBtn.disabled = true;
+  evalBtn.classList.add('loading');
+  loadingSection.style.display = 'block';
+  hideStatus();
+  
+  try {
+    console.log('API呼び出し開始:', WORKERS_URL);
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    
+    const response = await fetch(WORKERS_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        question: q.q,
+        transcript: transcript
+      }),
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    
+    console.log('API応答ステータス:', response.status);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('API エラー:', response.status, errorText);
+      throw new Error(`API エラー (${response.status}): ${errorText.substring(0, 100)}`);
+    }
+    
+    const result = await response.json();
+    console.log('評価結果:', result);
+    displayEvaluation(result, q.model);
+    showStatus('✓ AI評価が完了しました', 'success');
+    
+  } catch (error) {
+    console.error('詳細エラー:', error);
+    
+    if (error.name === 'AbortError') {
+      showStatus('タイムアウト（30秒以内に応答がありません）。ネットワーク接続を確認してください。', 'error');
+    } else {
+      showStatus('AI評価エラー: ' + error.message, 'error');
+    }
+    
+  } finally {
+    evalBtn.disabled = false;
+    evalBtn.classList.remove('loading');
+    loadingSection.style.display = 'none';
+  }
+}
+
+function displayEvaluation(result, modelAnswer) {
+  const scoreDisplay = document.getElementById('scoreDisplay');
+  const evalDetails = document.getElementById('evalDetails');
+  
+  scoreDisplay.textContent = result.score ? `${result.score}点` : '評価中...';
+  
+  let html = '';
+  if (result.good) {
+    html += '<div class="eval-item">';
+    html += '<div class="eval-label">✓ 良かった点</div>';
+    html += '<div class="eval-content">';
+    if (Array.isArray(result.good)) {
+      result.good.forEach(item => {
+        html += `<div>・${item}</div>`;
+      });
+    } else {
+      html += `<div>${result.good}</div>`;
+    }
+    html += '</div></div>';
+  }
+  
+  if (result.improve) {
+    html += '<div class="eval-item">';
+    html += '<div class="eval-label">△ 改善すべき点</div>';
+    html += '<div class="eval-content">';
+    if (Array.isArray(result.improve)) {
+      result.improve.forEach(item => {
+        html += `<div>・${item}</div>`;
+      });
+    } else {
+      html += `<div>${result.improve}</div>`;
+    }
+    html += '</div></div>';
+  }
+  
+  html += '<div class="eval-item">';
+  html += '<div class="eval-label">📝 模範回答例</div>';
+  html += `<div class="eval-content">${modelAnswer}</div></div>`;
+  
+  if (result.advice) {
+    html += '<div class="eval-item">';
+    html += '<div class="eval-label">💡 改善アドバイス</div>';
+    html += `<div class="eval-content">${result.advice}</div></div>`;
+  }
+  
+  evalDetails.innerHTML = html;
+  document.getElementById('evalResultSection').style.display = 'block';
+  window.scrollTo(0, document.getElementById('evalResultSection').offsetTop);
+}
+
+window.addEventListener('load', () => {
+  initVoice();
+  console.log('✓ ページ初期化完了');
+});
+</script>
+</body>
+</html>
