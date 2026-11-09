@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>国立医療センター看護学校 面接練習プログラム</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 20px;
+    background: #f5f5f5;
+    font-family: "Hiragino Sans", "Meiryo", sans-serif;
+    line-height: 1.6;
+    color: #333;
+  }
+  .container { max-width: 900px; margin: 0 auto; }
+  h1 { color: #e8374b; margin-bottom: 5px; text-align: center; }
+  .subtitle { text-align: center; color: #666; margin-bottom: 30px; font-size: 14px; }
+  
+  .question-list {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .q-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 12px;
+    margin: 8px 0;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 14px;
+  }
+  .q-btn:hover { background: #f0f0f0; border-color: #e8374b; }
+  .q-btn.selected { background: #ffe8eb; border-color: #e8374b; font-weight: bold; }
+  
+  .practice-area {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .question-display {
+    background: #f9f9f9;
+    padding: 15px;
+    border-left: 5px solid #e8374b;
+    margin-bottom: 20px;
+    border-radius: 3px;
+  }
+  .question-display strong { color: #e8374b; }
+  
+  .control-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: 0.2s;
+  }
+  .btn-scroll {
+    background: #e8374b;
+    color: white;
+  }
+  .btn-scroll:hover { background: #c91a31; }
+  
+  .intent-section {
+    background: #f9f9f9;
+    padding: 12px;
+    border-left: 3px solid #e8374b;
+    margin: 15px 0;
+    border-radius: 3px;
+  }
+  .section-label { 
+    font-size: 12px; 
+    color: #e8374b; 
+    font-weight: bold;
+    text-transform: uppercase; 
+    margin-bottom: 8px;
+  }
+  .section-text { 
+    color: #333; 
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  
+  .keywords { margin-top: 10px; }
+  .keyword { 
+    display: inline-block;
+    background: #ffe8eb;
+    color: #e8374b;
+    padding: 4px 10px;
+    margin: 4px 4px 4px 0;
+    border-radius: 12px;
+    font-size: 12px;
+  }
+  
+  .info-box {
+    background: #fffafa;
+    border: 1px solid #e8374b;
+    padding: 15px;
+    border-radius: 3px;
+    margin-top: 15px;
+  }
+  .info-title {
+    font-weight: bold;
+    color: #e8374b;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  .info-content {
+    color: #333;
+    font-size: 14px;
+    white-space: pre-wrap;
+  }
+  
+  .tip-box {
+    background: #fff5f5;
+    border-left: 4px solid #e8374b;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 3px;
+  }
+  .tip-label {
+    font-weight: bold;
+    color: #e8374b;
+    font-size: 12px;
+  }
+  .tip-text {
+    color: #333;
+    font-size: 13px;
+    margin-top: 4px;
+  }
+
+  .interview-guide {
+    background: #f5f5f5;
+    padding: 15px;
+    border-radius: 3px;
+    margin-top: 20px;
+  }
+  .guide-title { font-weight: bold; color: #e8374b; margin-bottom: 10px; }
+  .guide-item {
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #ddd;
+    font-size: 13px;
+  }
+  .guide-item:last-child { border-bottom: none; }
+  .guide-label { font-weight: bold; color: #e8374b; display: inline-block; width: 80px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🏥 国立医療センター看護学校</h1>
+  <p class="subtitle">個人面接 想定問答集</p>
+  
+  <div class="question-list">
+    <h3>質問を選択:</h3>
+    <button class="q-btn" onclick="selectQuestion(0)">Q① 自己紹介</button>
+    <button class="q-btn" onclick="selectQuestion(1)">Q② 本校を志望した理由</button>
+    <button class="q-btn" onclick="selectQuestion(2)">Q③ なぜ看護師を目指すのか</button>
+    <button class="q-btn" onclick="selectQuestion(3)">Q④ ドキュメンタリーについて</button>
+    <button class="q-btn" onclick="selectQuestion(4)">Q⑤ 地震経験と学び</button>
+    <button class="q-btn" onclick="selectQuestion(5)">Q⑥ 感染症や災害の現場</button>
+    <button class="q-btn" onclick="selectQuestion(6)">Q⑦ 多くの看護学校の中で、なぜ本校</button>
+    <button class="q-btn" onclick="selectQuestion(7)">Q⑧ オープンキャンパスの印象</button>
+    <button class="q-btn" onclick="selectQuestion(8)">Q⑨ シミュレーション施設について</button>
+    <button class="q-btn" onclick="selectQuestion(9)">Q⑩ 母体病院について</button>
+    <button class="q-btn" onclick="selectQuestion(10)">Q⑪ 本校は第一志望か</button>
+    <button class="q-btn" onclick="selectQuestion(11)">Q⑫ 教育理念について</button>
+    <button class="q-btn" onclick="selectQuestion(12)">Q⑬ 救急看護について</button>
+    <button class="q-btn" onclick="selectQuestion(13)">Q⑭ 他部門に配置されたら</button>
+    <button class="q-btn" onclick="selectQuestion(14)">Q⑮ 10年後の看護師像</button>
+  </div>
+  
+  <div class="practice-area">
+    <div id="questionDisplay" class="question-display" style="display:none;">
+      <strong id="questionText"></strong>
+    </div>
+    
+    <div class="control-buttons">
+      <button class="btn-scroll" onclick="scrollToIntent()">📖 回答のポイントを見る</button>
+    </div>
+    
+    <div id="intentSection" style="display:none;">
+      <div class="intent-section">
+        <div class="section-label">【面接官の意図】</div>
+        <div class="section-text" id="intentText"></div>
+      </div>
+      
+      <div class="intent-section">
+        <div class="section-label">【推奨回答の構成】</div>
+        <div class="section-text" id="answerStructure"></div>
+      </div>
+      
+      <div class="intent-section" id="keywordSection" style="display:none;">
+        <div class="section-label">【重要キーワード】</div>
+        <div class="keywords" id="keywordArea"></div>
+      </div>
+      
+      <div class="tip-box">
+        <div class="tip-label">💡 ポイント</div>
+        <div class="tip-text" id="tipsText"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="practice-area" style="margin-top: 30px;">
+    <div class="interview-guide">
+      <div class="guide-title">📋 面接の基本マナー</div>
+      <div class="guide-item">
+        <div class="guide-label">入室時：</div>
+        ノック（3回） → 「失礼します」 → ドアを静かに閉める → 椅子の前で一礼
+      </div>
+      <div class="guide-item">
+        <div class="guide-label">話し方：</div>
+        30秒～1分。語尾ははっきり。「～と思います」より「～と考えています」
+      </div>
+      <div class="guide-item">
+        <div class="guide-label">視線・姿勢：</div>
+        面接官の目を見る（複数の場合は質問者を中心に全体へ）。背筋を伸ばす
+      </div>
+      <div class="guide-item">
+        <div class="guide-label">わからない時：</div>
+        「申し訳ございません、少し考えてもよろしいでしょうか」と伝える
+      </div>
+      <div class="guide-item">
+        <div class="guide-label">退室時：</div>
+        「ありがとうございました」 → 一礼 → ドアの前で、もう一度一礼 → 静かに退室
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    q: "自己紹介をしてください。",
+    intent: "話し方、態度、第一印象を見ています。氏名、学校、高校時代に力を入れたことを30秒以内に話す。",
+    structure: "1. 氏名と学校名\n2. 高校時代に力を入れたこと（1つ）\n3. 本日よろしくお願いいたします",
+    keywords: ["簡潔さ", "はきはき", "第一印象"],
+    tips: "目を見ていはっきり話す。30秒を目安に、話が途中で途切れないこと。"
+  },
+  {
+    q: "本校を志望した理由は、１分程度で教えてください。",
+    intent: "志望理由の根拠と学校研究の準備度を確認します。",
+    structure: "1. 救急看護・災害看護に惹かれた理由\n2. 母体病院の先進性（DMAT、シミュレーション設備など）\n3. 小人数教育の魅力\n4. この環境での学習意欲",
+    keywords: ["救急看護", "災害看護", "少人数教育", "母体病院"],
+    tips: "「多くの看護学校の中で、この学校『だから』」という根拠を示す。丸暗記の構えになってはいけない。"
+  },
+  {
+    q: "なぜ看護師を目指すのですか。看護師を目指そうと思ったきっかけを教えてください。",
+    intent: "職業選択の深さ、看護への向き合い方を見ています。",
+    structure: "1. きっかけ（具体的な出来事・人との関わり）\n2. その経験から気づいたこと\n3. 看護師として貢献したいことの明確化",
+    keywords: ["具体的な体験", "患者の役に立つ", "責任感", "やりがい"],
+    tips: "「人の役に立ちたい」「大変でもやりがいがある」は誰でも言う。『自分だけの理由』を述べる。"
+  },
+  {
+    q: "ドキュメンタリーについて、もう少し詳しく教えてください。",
+    intent: "動機や本校への動機付けが本当か、体験から自分の言葉で語れているか確認します。",
+    structure: "1. ドキュメンタリーのタイトルと内容\n2. 見た時の感情や気づき\n3. そこから学んだことの具体化",
+    keywords: ["医療従事者の使命", "患者と家族の信頼", "緊急時の対応"],
+    tips: "番組名や構成を確認しておく。見学した内容だけでなく、『それから何を考えたか』が重要。"
+  },
+  {
+    q: "熊本で度重なる地震を経験されたとのことですが、それぞれのような経験でしたか。",
+    intent: "災害への思いの根底と、経験の受け止め方を見ています。志望理由書の記述の深掘りです。",
+    structure: "1. 2016年の地震での体験（自分の状況を含む）\n2. 令和6年7月の地震での体験\n3. 複数の経験から学んだことの統合",
+    keywords: ["被災経験の深さ", "医療者への感謝", "緊急時の対応の学び"],
+    tips: "『同じ苦しみを経験した人へのサポート』『医療者の力の大きさ』という視点を示す。"
+  },
+  {
+    q: "感染症や災害の現場は危険もあります。怖くはありませんか。",
+    intent: "覚悟とストレス対処力を見ています。現実的な理解があるか確認。",
+    structure: "1. 怖さの自覚を認める\n2. だからこそ知識と技術を身につける覚悟\n3. チームで支え合う姿勢",
+    keywords: ["知識・技術の習得", "チームワーク", "自己管理"],
+    tips: "『怖くない』という答えは却下される。怖いからこそ、どう向き合うかが重要。"
+  },
+  {
+    q: "多くの看護学校の中で、なぜ本校なのですか。",
+    intent: "本校を『選ぶ理由』と『他校との差別化』を見ています。研究の深さを確認。",
+    structure: "1. 学校の特徴の理解（少人数、母体病院の規模、カリキュラム）\n2. 本校でなければならない理由\n3. 自分の目指す看護師像との合致",
+    keywords: ["550床の大規模病院", "DMAT", "シミュレーション教育", "小規模校"],
+    tips: "本校の学校案内から『具体的な数字』を引用する。『在宅看護』『公衆衛生看護』など現場と連携した学びを理解していること。"
+  },
+  {
+    q: "オープンキャンパスで、特に印象に残ったことは何ですか。",
+    intent: "実際に足を運んだか、本校への適応速度、教育コストを確認します。",
+    structure: "1. 見学した具体的な施設や場面\n2. その時の感情や気づき\n3. 本校への入学がより確実になった内容",
+    keywords: ["シミュレーション演習", "先輩との交流", "附属病院の規模"],
+    tips: "『施設が整っている』『小人数』という総論ではなく、『具体的な場面や言葉』を語る。"
+  },
+  {
+    q: "新設のシミュレーション棟について、知っていることを答えてください。",
+    intent: "学校研究の深さを見ています。",
+    structure: "1. 施設名と完成時期（2025年12月）\n2. 施設内容（在宅看護演習室、ICU、24時間対応など）\n3. そこでどのような学びができるのか",
+    keywords: ["在宅看護演習室", "ICU6床", "24時間365日対応"],
+    tips: "施設名を確認。見学した内容があれば、それを一言加えると、『実際に見学した』という印象になる。"
+  },
+  {
+    q: "本校の母体病院、熊本医療センターについて知っていることを教えてください。",
+    intent: "卒業後の就職地への関心と、志望動機の根拠を確認します。",
+    structure: "1. 熊本医療センターの規模と機能（550床）\n2. DMATなど先進的な医療体制\n3. 3年間でこの病院で学べることの理解",
+    keywords: ["550床の大規模病院", "DMAT（災害医療チーム）", "救命救急センター"],
+    tips: "『数字や機能』を確認。見学した内容があれば、『実習でお世話になる場所』として親近感を示す。"
+  },
+  {
+    q: "他の学校も受験しますか。本校は第一志望ですか。",
+    intent: "入学意思の確認と、本気度を測ります。",
+    structure: "1. 本校が『第一志望』であることを明確に\n2. 他校を受験する場合、その理由（全否定ではなく、環境の好みなど）\n3. 本校への強い希望を示す",
+    keywords: ["第一志望", "本気度", "継続学習への意思"],
+    tips: "複願してる場合、『うちが第一』と明確に言う。曖昧な答えは信用度を落とす。"
+  },
+  {
+    q: "本校の教育理念「自主・責任秩序・融和」で、共感するものはどれですか。",
+    intent: "理念への理解と、自分のキャリア観が一致しているか確認します。",
+    structure: "1. 自主・責任秩序・融和の意味を理解していることを示す\n2. どれに特に共感するのか（自分の経験と照らし合わせて）\n3. 3年間でこれをどう実践していくのか",
+    keywords: ["自主：自分課題を見つける", "責任秩序：最後まで役割を果たす", "融和：チーム立場に立って行動"],
+    tips: "暗記的に述べない。『自分の高校時代の経験』と『3つの理念』を結びつけて、『だからこの学校で学びたい』という流れで語る。"
+  },
+  {
+    q: "救急看護師に必要な力は何だと思いますか。",
+    intent: "職業理解の深さと志望根拠を確認します。",
+    structure: "1. 迅速で正確な判断力\n2. 多くの患者に対応できる対応力\n3. 医療チーム全体との連携力",
+    keywords: ["迅速", "正確さ", "判断力", "冷静さ", "連携"],
+    tips: "『優先順位を判断する力』『医療チームの中での役割理解』『ストレス対処』がキーワード。"
+  },
+  {
+    q: "もし救急以外の部門に配置されたら、どうしますか。",
+    intent: "柔軟性と看護への姿勢を見ています。",
+    structure: "1. どの部門でも患者さんの状態を把握し、安心して過ごせる環境を作ることが看護\n2. その部門の特性を学んで、できる範囲で地域医療に貢献\n3. 『配置先で経験を生かし、その後の指導者になるくらいの気持ち』",
+    keywords: ["柔軟性", "看護への姿勢", "生きる力"],
+    tips: "『救急じゃないと嫌』というイメージを持たないこと。『どこでも生きる力』を示す。"
+  },
+  {
+    q: "10年後、どのような看護師になっていたいですか。",
+    intent: "将来像の一貫性と成長意欲を見ています。",
+    structure: "1. 実践的な看護技術と知識を持った看護師\n2. 患者さんの状態に共感できる姿勢\n3. 後輩を育てるくらいの成長意欲",
+    keywords: ["学び続ける", "患者に寄り添う", "チームの中での役割"],
+    tips: "『完璧な看護師』ではなく、『継続的に学び、成長する看護師』という現実的なビジョンを示す。"
+  }
+];
+
+function selectQuestion(idx) {
+  const q = questions[idx];
+  document.querySelectorAll('.q-btn').forEach((btn, i) => {
+    btn.classList.toggle('selected', i === idx);
+  });
+  
+  document.getElementById('questionDisplay').style.display = 'block';
+  document.getElementById('questionText').textContent = q.q;
+  document.getElementById('intentText').textContent = q.intent;
+  document.getElementById('answerStructure').textContent = q.structure;
+  document.getElementById('tipsText').textContent = q.tips;
+  
+  if (q.keywords && q.keywords.length > 0) {
+    document.getElementById('keywordSection').style.display = 'block';
+    document.getElementById('keywordArea').innerHTML = q.keywords.map(k => `<span class="keyword">${k}</span>`).join('');
+  } else {
+    document.getElementById('keywordSection').style.display = 'none';
+  }
+  
+  document.getElementById('intentSection').style.display = 'none';
+}
+
+function scrollToIntent() {
+  document.getElementById('intentSection').style.display = 'block';
+  setTimeout(() => {
+    document.getElementById('intentSection').scrollIntoView({ behavior: 'smooth' });
+  }, 100);
+}
+</script>
+</body>
+</html>
