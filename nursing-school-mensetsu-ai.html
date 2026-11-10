@@ -452,7 +452,14 @@ function initVoice() {
   
   recognition.onerror = (event) => {
     console.error('音声認識エラー:', event.error);
-    showStatus('音声認識エラー: ' + event.error, 'error');
+    const msgs = {
+      'not-allowed': 'マイクが許可されていません。アドレスバー左の鍵（または設定）のマークを押し、「マイク」を「許可」にしてから、ページを再読み込みしてください。',
+      'service-not-allowed': 'マイクが許可されていません。アドレスバー左の鍵（または設定）のマークを押し、「マイク」を「許可」にしてから、ページを再読み込みしてください。',
+      'audio-capture': 'マイクが見つかりません。マイクがつながっているか確認してください。',
+      'no-speech': '声が聞こえませんでした。もう一度、はっきり話してみてください。',
+      'network': 'ネットワークに問題があります。通信状態を確認してください。'
+    };
+    showStatus(msgs[event.error] || ('音声認識エラー: ' + event.error), 'error');
   };
   
   recognition.onend = () => {
