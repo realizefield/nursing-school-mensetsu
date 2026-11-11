@@ -253,6 +253,7 @@
           <div style="font-size:14px;margin-bottom:8px;">野田先生に添削依頼したいときは、下のボタンでコピーして、LINEに貼り付けて送ってください。</div>
           <button id="consultBtn" onclick="copyConsult()" style="background:#06c755;color:#fff;border:none;border-radius:8px;padding:12px 28px;font-size:16px;font-weight:bold;cursor:pointer;">📩 野田先生に相談する（コピー）</button>
           <div id="consultMsg" style="font-size:13px;margin-top:8px;"></div>
+          <div style="font-size:13px;margin-top:8px;"><a href="https://line.me/R/ti/p/@735itfta" target="_blank" rel="noopener" style="color:#06a047;font-weight:bold;">💬 野田先生のLINEを開く</a>（先にコピーしてから開いてください）</div>
         </div>
       </div>
     </div>
@@ -589,6 +590,7 @@ async function getAutoEvaluation() {
 }
 
 // ===== 記録の保存（この端末のブラウザ内・最大5件）=====
+const LINE_URL = 'https://line.me/R/ti/p/@735itfta';
 const SAVE_KEY = 'nursingMensetsuRecords_v1';
 const SAVE_MAX = 5;
 let lastEval = null;
@@ -607,7 +609,7 @@ function buildConsultText(r) {
     + '野田先生、添削をお願いします。';
 }
 function copyText(text, msgEl) {
-  const ok = () => { msgEl.style.color = '#2e7d32'; msgEl.textContent = '✓ コピーしました。LINEを開いて、貼り付けて送ってください。'; };
+  const ok = () => { msgEl.style.color = '#2e7d32'; msgEl.innerHTML = '✓ コピーしました。<a href="' + LINE_URL + '" target="_blank" rel="noopener" style="color:#06a047;font-weight:bold;">👉 LINEを開く</a>　→ 貼り付けて送ってください。'; };
   const fallback = () => {
     try {
       const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
